@@ -57,3 +57,20 @@ Thumbs.db
 # Production
 .vercel/
 .netlify/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
