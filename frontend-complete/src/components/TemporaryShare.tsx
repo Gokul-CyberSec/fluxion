@@ -56,7 +56,15 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
     setStatus({ type: 'info', message: 'Starting peer session...' });
 
     try {
-      const peer = new Peer();
+      // Generate a random 6-digit peer ID
+      const randomId = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      const peer = new Peer(randomId, {
+        host: import.meta.env.VITE_WEBRTC_HOST,
+        secure: true,
+        port: 443,
+        path: '/'
+      });
       peerRef.current = peer;
 
       peer.on('open', (id) => {
