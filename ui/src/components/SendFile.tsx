@@ -164,24 +164,28 @@ export function SendFile({ onBack }: SendFileProps) {
   };
 
   return (
-    <div className="min-h-screen gradient-mesh relative overflow-hidden">
-      {/* Decorative background elements */}
+    <div className="min-h-screen gradient-mesh-blue noise relative overflow-hidden">
+      {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-[450px] h-[450px] orb-blue animate-blob opacity-40" />
+        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] orb-cyan animate-blob opacity-30" style={{ animationDelay: '2s' }} />
+        
+        {/* Floating geometric shapes */}
+        <div className="absolute top-32 left-20 w-16 h-16 border border-primary/15 rounded-2xl rotate-12 animate-float" />
+        <div className="absolute bottom-40 right-16 w-12 h-12 border border-accent/15 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
       </div>
 
-      <header className="relative z-10 glass border-b border-white/10">
+      <header className="relative z-10 liquid-glass border-b border-white/20">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/20">
+            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/25 hover-shine">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold">Send File</h1>
+            <h1 className="text-xl font-bold text-gradient-blue">Send File</h1>
           </div>
-          <Button onClick={onBack} variant="ghost" size="sm" className="rounded-xl hover:bg-white/10 transition-all">
+          <Button onClick={onBack} variant="ghost" size="sm" className="rounded-xl btn-glass transition-all">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -191,11 +195,15 @@ export function SendFile({ onBack }: SendFileProps) {
       </header>
 
       <main className="relative z-10 max-w-lg mx-auto px-6 py-12">
-        <div className="glass-card p-8 rounded-3xl">
+        <div className="liquid-glass-card p-8 rounded-3xl relative overflow-hidden">
+          {/* Noise overlay */}
+          <div className="absolute inset-0 noise pointer-events-none" />
+          
+          <div className="relative z-10">
           {state === 'lookup' && (
             <div className="space-y-6">
               <div className="text-center mb-8">
-                <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+                <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
                   <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
@@ -213,7 +221,7 @@ export function SendFile({ onBack }: SendFileProps) {
                   value={receiverEmail}
                   onChange={(e) => setReceiverEmail(e.target.value)}
                   placeholder="receiver@email.com"
-                  className="h-12 rounded-xl bg-muted/50 border-0 focus:ring-2 focus:ring-primary/50"
+                  className="h-12 rounded-xl liquid-glass-subtle border-0 focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
@@ -228,7 +236,7 @@ export function SendFile({ onBack }: SendFileProps) {
 
               <Button 
                 onClick={handleLookupReceiver} 
-                className="w-full h-12 rounded-xl gradient-primary text-white font-medium shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                className="w-full h-12 rounded-xl btn-liquid text-white font-medium"
                 disabled={!!progress}
               >
                 {progress ? (
@@ -251,7 +259,7 @@ export function SendFile({ onBack }: SendFileProps) {
           {state === 'select' && (
             <div className="space-y-6">
               <div className="text-center mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center mx-auto mb-4 ring-glow">
                   <svg className="w-7 h-7 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -259,8 +267,8 @@ export function SendFile({ onBack }: SendFileProps) {
                 <h2 className="text-xl font-semibold">Recipient Found</h2>
               </div>
 
-              <div className="p-4 bg-muted/50 rounded-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white font-medium text-sm">
+              <div className="p-4 liquid-glass-subtle rounded-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white font-medium text-sm shadow-lg shadow-primary/25">
                   {receiverEmail.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -280,7 +288,7 @@ export function SendFile({ onBack }: SendFileProps) {
                 </label>
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative border-2 border-dashed border-muted-foreground/20 rounded-2xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+                  className="relative border-2 border-dashed border-primary/20 rounded-2xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group liquid-glass-subtle"
                 >
                   <input
                     ref={fileInputRef}
@@ -288,7 +296,7 @@ export function SendFile({ onBack }: SendFileProps) {
                     onChange={handleFileSelect}
                     className="hidden"
                   />
-                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/10 transition-colors">
+                  <div className="w-12 h-12 rounded-xl liquid-glass flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/10 transition-colors">
                     <svg className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
@@ -299,8 +307,8 @@ export function SendFile({ onBack }: SendFileProps) {
               </div>
 
               {selectedFile && (
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-2xl flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <div className="p-4 liquid-glass-blue rounded-2xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                     <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -313,7 +321,7 @@ export function SendFile({ onBack }: SendFileProps) {
                   </div>
                   <button 
                     onClick={() => setSelectedFile(null)} 
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                   >
                     <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -332,12 +340,12 @@ export function SendFile({ onBack }: SendFileProps) {
               )}
 
               <div className="flex gap-3 pt-2">
-                <Button onClick={handleReset} variant="outline" className="flex-1 h-12 rounded-xl">
+                <Button onClick={handleReset} variant="outline" className="flex-1 h-12 rounded-xl btn-glass">
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleSend} 
-                  className="flex-1 h-12 rounded-xl gradient-primary text-white shadow-lg shadow-primary/20"
+                  className="flex-1 h-12 rounded-xl btn-liquid text-white"
                   disabled={!selectedFile}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,7 +360,7 @@ export function SendFile({ onBack }: SendFileProps) {
             <div>
               <PrivateKeyManager onKeyLoaded={handleKeyLoaded} />
               <div className="mt-6 flex gap-3">
-                <Button onClick={() => setState('select')} variant="outline" className="flex-1 rounded-xl">
+                <Button onClick={() => setState('select')} variant="outline" className="flex-1 rounded-xl btn-glass">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
@@ -364,9 +372,9 @@ export function SendFile({ onBack }: SendFileProps) {
         {state === 'sending' && (
           <div className="text-center space-y-6 py-8">
             <div className="relative w-20 h-20 mx-auto">
-              <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
               <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
-              <div className="absolute inset-3 rounded-full gradient-primary flex items-center justify-center">
+              <div className="absolute inset-3 rounded-full gradient-primary flex items-center justify-center shadow-lg shadow-primary/30">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -392,7 +400,7 @@ export function SendFile({ onBack }: SendFileProps) {
                 Your file has been encrypted and sent securely
               </p>
             </div>
-            <div className="p-4 bg-green-500/10 rounded-2xl text-sm text-green-600 dark:text-green-400">
+            <div className="p-4 liquid-glass-subtle rounded-2xl text-sm text-green-600 dark:text-green-400">
               <div className="flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -400,7 +408,7 @@ export function SendFile({ onBack }: SendFileProps) {
                 End-to-end encrypted with AES-256-GCM
               </div>
             </div>
-            <Button onClick={handleReset} className="w-full h-12 rounded-xl gradient-primary text-white shadow-lg shadow-primary/20">
+            <Button onClick={handleReset} className="w-full h-12 rounded-xl btn-liquid text-white">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
@@ -420,7 +428,7 @@ export function SendFile({ onBack }: SendFileProps) {
               <h3 className="text-2xl font-bold text-destructive">Failed to Send</h3>
               <p className="text-muted-foreground mt-2">{error}</p>
             </div>
-            <Button onClick={handleReset} className="w-full h-12 rounded-xl" variant="outline">
+            <Button onClick={handleReset} className="w-full h-12 rounded-xl btn-glass">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -428,6 +436,7 @@ export function SendFile({ onBack }: SendFileProps) {
             </Button>
           </div>
         )}
+        </div>
         </div>
       </main>
     </div>

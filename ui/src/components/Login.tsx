@@ -141,76 +141,86 @@ export function Login() {
   }, [handleCredentialResponse]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-mesh relative overflow-hidden">
-      {/* Decorative background elements */}
+    <div className="min-h-screen flex items-center justify-center gradient-mesh-blue noise relative overflow-hidden">
+      {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse-ring" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-pulse-ring" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] orb-blue animate-blob opacity-50" />
+        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] orb-cyan animate-blob opacity-40" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] orb-blue opacity-20 animate-pulse-soft" />
+        
+        {/* Floating geometric shapes */}
+        <div className="absolute top-20 left-20 w-16 h-16 border border-primary/20 rounded-2xl rotate-12 animate-float" />
+        <div className="absolute bottom-32 right-20 w-12 h-12 border border-accent/20 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-1/3 right-1/4 w-8 h-8 bg-primary/10 rounded-lg rotate-45 animate-float-slow" />
       </div>
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        {/* Main card */}
-        <div className="glass-card rounded-3xl p-10 hover-lift">
-          {/* Logo and branding */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-6 shadow-lg shadow-primary/30">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold text-gradient mb-2">Vortex</h1>
-            <p className="text-muted-foreground">
-              Zero-Trust Encrypted File Sharing
-            </p>
-          </div>
+        {/* Main card with liquid glass effect */}
+        <div className="liquid-glass-card rounded-3xl p-10 hover-lift relative overflow-hidden">
+          {/* Noise overlay */}
+          <div className="absolute inset-0 noise pointer-events-none" />
           
-          {/* Security badges */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
-              <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              E2E Encrypted
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
-              <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              AES-256-GCM
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-center gap-6">
-            {GOOGLE_CLIENT_ID ? (
-              <div className="w-full">
-                <div id="google-signin-button" className="flex justify-center"></div>
+          <div className="relative z-10">
+            {/* Logo and branding */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-6 shadow-lg shadow-primary/30 hover-shine">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
-            ) : (
-              <div className="text-center p-4 rounded-2xl bg-destructive/10 border border-destructive/20">
-                <p className="text-sm text-destructive font-medium mb-1">
-                  Google Client ID not configured
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Set VITE_GOOGLE_CLIENT_ID environment variable
-                </p>
+              <h1 className="text-3xl font-bold text-gradient-blue mb-2">Fluxion</h1>
+              <p className="text-muted-foreground">
+                Zero-Trust Encrypted File Sharing
+              </p>
+            </div>
+            
+            {/* Security badges */}
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground liquid-glass-subtle px-3 py-1.5 rounded-full">
+                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                E2E Encrypted
               </div>
-            )}
-          </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground liquid-glass-subtle px-3 py-1.5 rounded-full">
+                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                AES-256-GCM
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-center gap-6">
+              {GOOGLE_CLIENT_ID ? (
+                <div className="w-full">
+                  <div id="google-signin-button" className="flex justify-center"></div>
+                </div>
+              ) : (
+                <div className="text-center p-4 rounded-2xl bg-destructive/10 border border-destructive/20">
+                  <p className="text-sm text-destructive font-medium mb-1">
+                    Google Client ID not configured
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Set VITE_GOOGLE_CLIENT_ID environment variable
+                  </p>
+                </div>
+              )}
+            </div>
 
-          <div className="mt-8 pt-6 border-t border-border/50">
-            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                End-to-end encrypted
-              </div>
-              <div className="flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                Zero-trust security
+            <div className="mt-8 pt-6 border-t border-white/20">
+              <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  End-to-end encrypted
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Zero-trust security
+                </div>
               </div>
             </div>
           </div>

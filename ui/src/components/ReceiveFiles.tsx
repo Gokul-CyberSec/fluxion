@@ -158,24 +158,28 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
   };
 
   return (
-    <div className="min-h-screen gradient-mesh relative overflow-hidden">
-      {/* Decorative background elements */}
+    <div className="min-h-screen gradient-mesh-blue noise relative overflow-hidden">
+      {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-[450px] h-[450px] orb-cyan animate-blob opacity-40" />
+        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] orb-blue animate-blob opacity-30" style={{ animationDelay: '2s' }} />
+        
+        {/* Floating geometric shapes */}
+        <div className="absolute top-24 left-16 w-14 h-14 border border-accent/15 rounded-full animate-float" />
+        <div className="absolute bottom-32 right-20 w-16 h-16 border border-primary/15 rounded-2xl rotate-12 animate-float" style={{ animationDelay: '1.5s' }} />
       </div>
 
-      <header className="relative z-10 glass border-b border-white/10">
+      <header className="relative z-10 liquid-glass border-b border-white/20">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/25 hover-shine">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold">Inbox</h1>
+            <h1 className="text-xl font-bold text-gradient-blue">Inbox</h1>
           </div>
-          <Button onClick={onBack} variant="ghost" size="sm" className="rounded-xl hover:bg-white/10 transition-all">
+          <Button onClick={onBack} variant="ghost" size="sm" className="rounded-xl btn-glass transition-all">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -186,13 +190,17 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
 
       <main className="relative z-10 max-w-3xl mx-auto px-6 py-12">
         {state === 'list' && (
-          <div className="glass-card p-8 rounded-3xl">
+          <div className="liquid-glass-card p-8 rounded-3xl relative overflow-hidden">
+            {/* Noise overlay */}
+            <div className="absolute inset-0 noise pointer-events-none" />
+            
+            <div className="relative z-10">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h2 className="text-2xl font-bold">Your Files</h2>
                 <p className="text-muted-foreground text-sm mt-1">Securely encrypted files sent to you</p>
               </div>
-              <Button onClick={fetchInbox} variant="outline" size="sm" disabled={loading} className="rounded-xl">
+              <Button onClick={fetchInbox} variant="outline" size="sm" disabled={loading} className="rounded-xl btn-glass">
                 <svg className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -203,8 +211,8 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
             {loading && (
               <div className="text-center py-16">
                 <div className="relative w-16 h-16 mx-auto mb-4">
-                  <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
-                  <div className="absolute inset-0 rounded-full border-4 border-teal-500 border-t-transparent animate-spin"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin"></div>
                 </div>
                 <p className="text-muted-foreground">Loading your inbox...</p>
               </div>
@@ -218,7 +226,7 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                   </svg>
                 </div>
                 <p className="text-destructive font-medium">{error}</p>
-                <Button onClick={fetchInbox} variant="outline" className="mt-4 rounded-xl">
+                <Button onClick={fetchInbox} variant="outline" className="mt-4 rounded-xl btn-glass">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
@@ -229,7 +237,7 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
 
             {!loading && !error && files.length === 0 && (
               <div className="text-center py-16">
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 rounded-full liquid-glass-subtle flex items-center justify-center mx-auto mb-4">
                   <svg className="w-10 h-10 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                   </svg>
@@ -244,11 +252,11 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                 {files.map((file) => (
                   <div
                     key={file.fileId}
-                    className="group p-5 bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-teal-500/20 rounded-2xl flex justify-between items-center transition-all duration-200"
+                    className="group p-5 liquid-glass-subtle hover:liquid-glass-blue rounded-2xl flex justify-between items-center transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-400/20 to-cyan-500/20 flex items-center justify-center group-hover:from-teal-400/30 group-hover:to-cyan-500/30 transition-colors">
-                        <svg className="w-6 h-6 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/20 flex items-center justify-center group-hover:from-cyan-400/30 group-hover:to-blue-500/30 transition-colors">
+                        <svg className="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
@@ -270,7 +278,7 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                         </div>
                       </div>
                     </div>
-                    <Button onClick={() => handleDownload(file)} size="sm" className="rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-500/20 hover:shadow-xl hover:shadow-teal-500/30 transition-all">
+                    <Button onClick={() => handleDownload(file)} size="sm" className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/30 transition-all">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
@@ -280,30 +288,35 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                 ))}
               </div>
             )}
+            </div>
           </div>
         )}
 
         {state === 'needKey' && (
-          <div>
+          <div className="liquid-glass-card p-8 rounded-3xl relative overflow-hidden">
+            <div className="absolute inset-0 noise pointer-events-none" />
+            <div className="relative z-10">
             <PrivateKeyManager onKeyLoaded={handleKeyLoaded} />
             <div className="mt-6 text-center">
-              <Button onClick={() => setState('list')} variant="outline" className="rounded-xl">
+              <Button onClick={() => setState('list')} variant="outline" className="rounded-xl btn-glass">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Cancel
               </Button>
             </div>
+            </div>
           </div>
         )}
 
         {state === 'downloading' && (
-          <div className="glass-card p-8 rounded-3xl">
-            <div className="text-center space-y-6 py-8">
+          <div className="liquid-glass-card p-8 rounded-3xl relative overflow-hidden">
+            <div className="absolute inset-0 noise pointer-events-none" />
+            <div className="relative z-10 text-center space-y-6 py-8">
               <div className="relative w-20 h-20 mx-auto">
-                <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-teal-500 border-t-transparent animate-spin"></div>
-                <div className="absolute inset-3 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin"></div>
+                <div className="absolute inset-3 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
@@ -328,8 +341,9 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
         )}
 
         {state === 'success' && (
-          <div className="glass-card p-8 rounded-3xl">
-            <div className="text-center space-y-6 py-8">
+          <div className="liquid-glass-card p-8 rounded-3xl relative overflow-hidden">
+            <div className="absolute inset-0 noise pointer-events-none" />
+            <div className="relative z-10 text-center space-y-6 py-8">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mx-auto shadow-lg shadow-green-500/30 animate-float">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -341,7 +355,7 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                   File decrypted and saved successfully
                 </p>
               </div>
-              <div className="p-4 bg-green-500/10 rounded-2xl space-y-2">
+              <div className="p-4 liquid-glass-subtle rounded-2xl space-y-2">
                 <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -355,7 +369,7 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                   File authentic & untampered
                 </div>
               </div>
-              <Button onClick={handleReset} className="w-full h-12 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-500/20">
+              <Button onClick={handleReset} className="w-full h-12 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/25">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -366,8 +380,9 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
         )}
 
         {state === 'error' && (
-          <div className="glass-card p-8 rounded-3xl">
-            <div className="text-center space-y-6 py-8">
+          <div className="liquid-glass-card p-8 rounded-3xl relative overflow-hidden">
+            <div className="absolute inset-0 noise pointer-events-none" />
+            <div className="relative z-10 text-center space-y-6 py-8">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center mx-auto shadow-lg shadow-red-500/30">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -387,7 +402,7 @@ export function ReceiveFiles({ onBack }: ReceiveFilesProps) {
                   </div>
                 </div>
               )}
-              <Button onClick={handleReset} className="w-full h-12 rounded-xl" variant="outline">
+              <Button onClick={handleReset} className="w-full h-12 rounded-xl btn-glass">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
