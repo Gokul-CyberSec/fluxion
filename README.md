@@ -1,4 +1,5 @@
 # 🚀 Fluxion - Zero-Trust Encrypted File Sharing
+live deployed project: https://fluxion-plum.vercel.app
 
 <div align="center">
 
