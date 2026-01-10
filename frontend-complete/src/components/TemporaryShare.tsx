@@ -9,6 +9,7 @@ interface TemporaryShareProps {
 
 type Role = 'sender' | 'receiver' | null;
 type StatusType = 'info' | 'success' | 'error' | 'warning' | '';
+type TransferState = 'idle' | 'preparing' | 'transferring' | 'completed' | 'failed';
 
 interface Status {
   type: StatusType;
@@ -20,6 +21,15 @@ interface FileData {
   file: Blob;
   fileName: string;
   fileType: string;
+  fileSize: number;
+}
+
+interface TransferInfo {
+  state: TransferState;
+  fileName: string;
+  fileSize: number;
+  progress: number;
+  direction: 'upload' | 'download' | null;
 }
 
 export function TemporaryShare({ onBack }: TemporaryShareProps) {
@@ -35,6 +45,13 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
   const [progress, setProgress] = useState(0);
   const [connections, setConnections] = useState<string[]>([]);
   const [selectedConnection, setSelectedConnection] = useState<string>('');
+  const [transferInfo, setTransferInfo] = useState<TransferInfo>({
+    state: 'idle',
+    fileName: '',
+    fileSize: 0,
+    progress: 0,
+    direction: null
+  });
 
   // Refs
   const peerRef = useRef<Peer | null>(null);
@@ -169,8 +186,26 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
   // Handle receiving file data
   const handleReceiveData = useCallback((data: FileData) => {
     if (data.dataType === 'FILE' && data.file) {
-      setStatus({ type: 'success', message: `Receiving: ${data.fileName}` });
-      setProgress(100);
+      // Start receiving animation
+      setTransferInfo({
+        state: 'transferring',
+        fileName: data.fileName,
+        fileSize: data.fileSize || data.file.size,
+        progress: 0,
+        direction: 'download'
+      });
+      setStatus({ type: 'info', message: `Receiving: ${data.fileName}` });
+
+      // Simulate progress for better UX
+      let prog = 0;
+      const interval = setInterval(() => {
+        prog += 15;
+        if (prog >= 90) {
+          clearInterval(interval);
+        }
+        setTransferInfo(prev => ({ ...prev, progress: Math.min(prog, 90) }));
+        setProgress(Math.min(prog, 90));
+      }, 100);
 
       // Download the file
       const blob = new Blob([data.file], { type: data.fileType });
@@ -183,8 +218,16 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      // Complete
+      clearInterval(interval);
+      setProgress(100);
+      setTransferInfo(prev => ({ ...prev, state: 'completed', progress: 100 }));
       setStatus({ type: 'success', message: `File "${data.fileName}" downloaded successfully!` });
-      setTimeout(() => setProgress(0), 2000);
+      
+      setTimeout(() => {
+        setProgress(0);
+        setTransferInfo({ state: 'idle', fileName: '', fileSize: 0, progress: 0, direction: null });
+      }, 3000);
     }
   }, []);
 
@@ -201,8 +244,17 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
     }
 
     setIsLoading(true);
-    setStatus({ type: 'info', message: 'Sending file...' });
-    setProgress(10);
+    
+    // Set preparing state
+    setTransferInfo({
+      state: 'preparing',
+      fileName: selectedFile.name,
+      fileSize: selectedFile.size,
+      progress: 0,
+      direction: 'upload'
+    });
+    setStatus({ type: 'info', message: 'Preparing file...' });
+    setProgress(5);
 
     try {
       const conn = connectionMapRef.current.get(selectedConnection);
@@ -210,27 +262,58 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
         throw new Error('Connection not found');
       }
 
+      // Simulate preparation progress
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setProgress(15);
+      setTransferInfo(prev => ({ ...prev, progress: 15 }));
+
       const blob = new Blob([selectedFile], { type: selectedFile.type });
 
-      setProgress(50);
+      // Set transferring state
+      setTransferInfo(prev => ({ ...prev, state: 'transferring', progress: 30 }));
+      setStatus({ type: 'info', message: 'Sending file...' });
+      setProgress(30);
+
+      // Simulate transfer progress
+      let prog = 30;
+      const interval = setInterval(() => {
+        prog += 10;
+        if (prog >= 90) {
+          clearInterval(interval);
+        }
+        setProgress(Math.min(prog, 90));
+        setTransferInfo(prev => ({ ...prev, progress: Math.min(prog, 90) }));
+      }, 150);
 
       conn.send({
         dataType: 'FILE',
         file: blob,
         fileName: selectedFile.name,
-        fileType: selectedFile.type
+        fileType: selectedFile.type,
+        fileSize: selectedFile.size
       } as FileData);
 
+      // Complete
+      clearInterval(interval);
       setProgress(100);
+      setTransferInfo(prev => ({ ...prev, state: 'completed', progress: 100 }));
       setStatus({ type: 'success', message: 'File sent successfully!' });
       setIsLoading(false);
       
-      setTimeout(() => setProgress(0), 2000);
+      setTimeout(() => {
+        setProgress(0);
+        setTransferInfo({ state: 'idle', fileName: '', fileSize: 0, progress: 0, direction: null });
+      }, 3000);
     } catch (err) {
       console.error('Failed to send file:', err);
       setStatus({ type: 'error', message: 'Failed to send file' });
+      setTransferInfo(prev => ({ ...prev, state: 'failed' }));
       setIsLoading(false);
       setProgress(0);
+      
+      setTimeout(() => {
+        setTransferInfo({ state: 'idle', fileName: '', fileSize: 0, progress: 0, direction: null });
+      }, 3000);
     }
   }, [selectedFile, selectedConnection]);
 
@@ -392,8 +475,94 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
           </div>
         )}
 
-        {/* Progress Bar */}
-        {progress > 0 && (
+        {/* Transfer Progress UI */}
+        {transferInfo.state !== 'idle' && (
+          <div className={`mb-6 p-4 rounded-xl border ${
+            transferInfo.state === 'completed' ? 'bg-green-50 border-green-200' :
+            transferInfo.state === 'failed' ? 'bg-red-50 border-red-200' :
+            'bg-blue-50 border-blue-200'
+          }`}>
+            {/* Transfer Header */}
+            <div className="flex items-center gap-3 mb-3">
+              {/* Animated Icon */}
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                transferInfo.state === 'completed' ? 'bg-green-500' :
+                transferInfo.state === 'failed' ? 'bg-red-500' :
+                'bg-blue-500'
+              }`}>
+                {transferInfo.state === 'completed' ? (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : transferInfo.state === 'failed' ? (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className={`w-5 h-5 text-white ${transferInfo.state === 'transferring' ? 'animate-pulse' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {transferInfo.direction === 'upload' ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    )}
+                  </svg>
+                )}
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <p className={`font-medium truncate ${
+                  transferInfo.state === 'completed' ? 'text-green-800' :
+                  transferInfo.state === 'failed' ? 'text-red-800' :
+                  'text-blue-800'
+                }`}>
+                  {transferInfo.state === 'preparing' && 'Preparing...'}
+                  {transferInfo.state === 'transferring' && (transferInfo.direction === 'upload' ? 'Uploading...' : 'Downloading...')}
+                  {transferInfo.state === 'completed' && (transferInfo.direction === 'upload' ? 'Sent!' : 'Downloaded!')}
+                  {transferInfo.state === 'failed' && 'Transfer Failed'}
+                </p>
+                <p className="text-sm truncate text-gray-600">{transferInfo.fileName}</p>
+              </div>
+              
+              <div className="text-right">
+                <p className={`text-lg font-bold ${
+                  transferInfo.state === 'completed' ? 'text-green-600' :
+                  transferInfo.state === 'failed' ? 'text-red-600' :
+                  'text-blue-600'
+                }`}>
+                  {transferInfo.progress}%
+                </p>
+                <p className="text-xs text-gray-500">{formatFileSize(transferInfo.fileSize)}</p>
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-300 ease-out ${
+                  transferInfo.state === 'completed' ? 'bg-green-500' :
+                  transferInfo.state === 'failed' ? 'bg-red-500' :
+                  'bg-gradient-to-r from-blue-500 to-blue-600'
+                }`}
+                style={{ width: `${transferInfo.progress}%` }}
+              />
+            </div>
+            
+            {/* Status Text */}
+            {transferInfo.state === 'transferring' && (
+              <div className="mt-2 flex items-center justify-center gap-2">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                </div>
+                <span className="text-xs text-blue-600">Transfer in progress</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Legacy Progress Bar (fallback) */}
+        {progress > 0 && transferInfo.state === 'idle' && (
           <div className="mb-6">
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
@@ -543,22 +712,61 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
                 )}
                 <Button
                   onClick={sendFile}
-                  disabled={!selectedFile || isLoading}
-                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                  disabled={!selectedFile || isLoading || transferInfo.state !== 'idle'}
+                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50"
                 >
-                  {isLoading ? 'Sending...' : 'Send File'}
+                  {transferInfo.state === 'preparing' ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Preparing...
+                    </span>
+                  ) : transferInfo.state === 'transferring' ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Sending... {transferInfo.progress}%
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      Send File
+                    </span>
+                  )}
                 </Button>
               </div>
             )}
 
             {/* Waiting for files (for receiver) */}
-            {role === 'receiver' && isConnected && (
-              <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-center">
-                <svg className="w-12 h-12 mx-auto text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <p className="text-green-700 font-medium">Ready to receive files!</p>
-                <p className="text-sm text-green-600">Files will be downloaded automatically</p>
+            {role === 'receiver' && isConnected && transferInfo.state === 'idle' && (
+              <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 text-center">
+                <div className="relative w-16 h-16 mx-auto mb-4">
+                  {/* Pulse rings */}
+                  <div className="absolute inset-0 rounded-full bg-green-400/20 animate-ping" style={{ animationDuration: '2s' }}></div>
+                  <div className="absolute inset-2 rounded-full bg-green-400/30 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
+                  {/* Icon */}
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-green-800 font-semibold text-lg mb-1">Ready to Receive</p>
+                <p className="text-sm text-green-600 mb-3">Waiting for incoming files...</p>
+                <div className="flex items-center justify-center gap-2 text-xs text-green-500">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                  <span>Files will download automatically</span>
+                </div>
               </div>
             )}
 
