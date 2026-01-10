@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const { generalLimiter } = require("./middleware/rateLimiter");
 
 // Import routes
 const authRoutes = require("./routes/auth");
@@ -26,6 +27,9 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Apply general rate limiting to all routes
+app.use(generalLimiter);
 
 // Routes
 app.use("/auth", authRoutes);

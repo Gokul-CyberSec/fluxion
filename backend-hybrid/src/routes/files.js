@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const authMiddleware = require("../middleware/auth");
+const { uploadLimiter, generalLimiter, downloadLimiter } = require("../middleware/rateLimiter");
 const {
   sendFile,
   getInbox,
@@ -16,12 +17,12 @@ const upload = multer({
 });
 
 // POST /files/send - Upload encrypted file
-router.post("/send", authMiddleware, upload.single("file"), sendFile);
+router.post("/send", uploadLimiter, authMiddleware, upload.single("file"), sendFile);
 
 // GET /files/inbox - List incoming files
-router.get("/inbox", authMiddleware, getInbox);
+router.get("/inbox", generalLimiter, authMiddleware, getInbox);
 
 // GET /files/download/:fileId - Download encrypted file
-router.get("/download/:fileId", authMiddleware, downloadFile);
+router.get("/download/:fileId", downloadLimiter, authMiddleware, downloadFile);
 
 module.exports = router;
