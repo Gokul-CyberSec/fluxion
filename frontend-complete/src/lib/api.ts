@@ -71,6 +71,22 @@ export async function uploadPublicKey(publicKey: string): Promise<{ message: str
   return response.json();
 }
 
+// PUT /users/public-key - Revoke and update user's public key
+export async function revokePublicKey(publicKey: string): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS_PUBLIC_KEY}`, {
+    method: 'PUT',
+    headers: jsonAuthHeaders(),
+    body: JSON.stringify({ publicKey }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to revoke public key');
+  }
+  
+  return response.json();
+}
+
 // GET /users/public-key?email= - Get receiver's public key
 export async function getReceiverPublicKey(email: string): Promise<{ userId: string; publicKey: string }> {
   const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS_PUBLIC_KEY}?email=${encodeURIComponent(email)}`, {

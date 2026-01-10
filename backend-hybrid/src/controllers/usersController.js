@@ -61,4 +61,30 @@ const getPublicKey = async (req, res) => {
   }
 };
 
-module.exports = { uploadPublicKey, getPublicKey };
+// PUT /users/public-key - Revoke and update user's public key
+const revokePublicKey = async (req, res) => {
+  try {
+    const { publicKey } = req.body;
+
+    if (!publicKey) {
+      return res.status(400).json({ error: "Public key is required" });
+    }
+
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the public key (revoke old one and set new one)
+    user.publicKey = publicKey;
+    await user.save();
+
+    res.json({ message: "Public key revoked and updated successfully" });
+  } catch (error) {
+    console.error("Revoke public key error:", error);
+    res.status(500).json({ error: "Failed to revoke public key" });
+  }
+};
+
+module.exports = { uploadPublicKey, getPublicKey, revokePublicKey };

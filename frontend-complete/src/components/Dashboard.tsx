@@ -4,8 +4,15 @@ import { SendFile } from './SendFile';
 import { ReceiveFiles } from './ReceiveFiles';
 import { TemporaryShare } from './TemporaryShare';
 import { Button } from '@/components/ui/button';
-import { hasPrivateKeysInSession } from '@/lib/keyStorage';
+import { hasPrivateKeysInSession, storeKeys } from '@/lib/keyStorage';
 import { useSearchParams } from 'react-router-dom';
+import { revokePublicKey } from '@/lib/api';
+import { 
+  generateKeyPair, 
+  generateSigningKeyPair, 
+  exportPublicKey, 
+  exportPrivateKey 
+} from '@/lib/crypto';
 
 type View = 'dashboard' | 'send' | 'receive' | 'temporary';
 
@@ -13,7 +20,72 @@ export function Dashboard() {
   const { logout, isLoadingKeys } = useAuth();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [searchParams] = useSearchParams();
+  const [isRevokingKey, setIsRevokingKey] = useState(false);
   const hasPrivateKey = hasPrivateKeysInSession();
+
+  // Handle key revocation - generates new keys, stores them, and updates server
+  const handleRevokeKey = async () => {
+    if (!confirm('⚠️ WARNING: Revoking your key will generate a new key pair.\n\nYour old private key will no longer work to decrypt files encrypted with your old public key.\n\nAre you sure you want to continue?')) {
+      return;
+    }
+
+    setIsRevokingKey(true);
+    try {
+      // Generate new key pairs
+      const encryptionKeyPair = await generateKeyPair();
+      const signingKeyPair = await generateSigningKeyPair();
+
+      // Export keys
+      const encryptionPublicKey = await exportPublicKey(encryptionKeyPair.publicKey);
+      const encryptionPrivateKey = await exportPrivateKey(encryptionKeyPair.privateKey);
+      const signingPublicKey = await exportPublicKey(signingKeyPair.publicKey);
+      const signingPrivateKey = await exportPrivateKey(signingKeyPair.privateKey);
+
+      // Store only public keys locally (in IndexedDB)
+      await storeKeys({
+        encryptionPublicKey,
+        encryptionPrivateKey: '', // Not stored
+        signingPublicKey,
+        signingPrivateKey: '', // Not stored
+      });
+
+      // Upload new public keys to server (revoke old ones)
+      const combinedPublicKey = JSON.stringify({
+        encryption: encryptionPublicKey,
+        signing: signingPublicKey,
+      });
+      await revokePublicKey(combinedPublicKey);
+
+      console.log('Keys revoked and new keys stored successfully');
+
+      // Download new private keys as a file for the user
+      const privateKeyData = {
+        encryptionPrivateKey,
+        signingPrivateKey,
+        createdAt: new Date().toISOString(),
+        warning: 'Keep this file safe! You will need it to decrypt files. Never share it with anyone.',
+        note: 'This key was generated after revoking a previous key.',
+      };
+
+      const blob = new Blob([JSON.stringify(privateKeyData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fluxion-private-key-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Show alert to user after download
+      alert('🔐 KEY REVOKED SUCCESSFULLY!\n\nYour new private key has been downloaded.\n\nIMPORTANT: Store this file safely! Your old private key will no longer work.\n\nYou will need to upload this new key file to decrypt any new files sent to you.');
+    } catch (error) {
+      console.error('Failed to revoke key:', error);
+      alert('Failed to revoke key. Please try again.');
+    } finally {
+      setIsRevokingKey(false);
+    }
+  };
 
   // Check for mode parameter from landing page
   useEffect(() => {
@@ -83,6 +155,29 @@ export function Dashboard() {
               <div className={`w-2 h-2 rounded-full ${hasPrivateKey ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`} />
               {hasPrivateKey ? 'Key Loaded' : 'Key Not Loaded'}
             </div>
+            <Button 
+              onClick={handleRevokeKey} 
+              variant="ghost" 
+              size="sm" 
+              disabled={isRevokingKey}
+              className="rounded-xl btn-glass transition-all text-amber-600 hover:text-amber-700 hover:bg-amber-500/10"
+            >
+              {isRevokingKey ? (
+                <>
+                  <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Revoking...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Revoke Key
+                </>
+              )}
+            </Button>
             <Button onClick={logout} variant="ghost" size="sm" className="rounded-xl btn-glass transition-all">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
