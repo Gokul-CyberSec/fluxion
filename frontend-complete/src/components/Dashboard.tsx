@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SendFile } from './SendFile';
 import { ReceiveFiles } from './ReceiveFiles';
-import { TemporaryShare } from './TemporaryShare';
 import { Button } from '@/components/ui/button';
 import { hasPrivateKeysInSession, storeKeys } from '@/lib/keyStorage';
 import { useSearchParams } from 'react-router-dom';
@@ -14,7 +13,7 @@ import {
   exportPrivateKey 
 } from '@/lib/crypto';
 
-type View = 'dashboard' | 'send' | 'receive' | 'temporary';
+type View = 'dashboard' | 'send' | 'receive';
 
 export function Dashboard() {
   const { logout, isLoadingKeys } = useAuth();
@@ -89,10 +88,7 @@ export function Dashboard() {
 
   // Check for mode parameter from landing page
   useEffect(() => {
-    const mode = searchParams.get('mode');
-    if (mode === 'temporary') {
-      setCurrentView('temporary');
-    }
+    // Reserved for future mode handling
   }, [searchParams]);
 
   // Show loading state while checking for keys
@@ -116,10 +112,6 @@ export function Dashboard() {
 
   if (currentView === 'receive') {
     return <ReceiveFiles onBack={() => setCurrentView('dashboard')} />;
-  }
-
-  if (currentView === 'temporary') {
-    return <TemporaryShare onBack={() => setCurrentView('dashboard')} />;
   }
 
   return (
@@ -204,37 +196,7 @@ export function Dashboard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* Temporary Share Option */}
-          <button
-            onClick={() => setCurrentView('temporary')}
-            className="group liquid-glass-card p-8 rounded-3xl text-left hover-lift hover-glow transition-all duration-300 relative overflow-hidden"
-          >
-            {/* Noise overlay */}
-            <div className="absolute inset-0 noise pointer-events-none" />
-            
-            <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-6 shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="text-xl font-semibold group-hover:text-amber-500 transition-colors">Quick Share</h3>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-xs font-medium">P2P</span>
-              </div>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Instant peer-to-peer transfer with temporary code
-              </p>
-              <div className="mt-4 flex items-center text-amber-500 font-medium text-sm">
-                Start sharing
-                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
-            </div>
-          </button>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           <button
             onClick={() => setCurrentView('send')}
             className="group liquid-glass-card p-8 rounded-3xl text-left hover-lift hover-glow transition-all duration-300 relative overflow-hidden"
