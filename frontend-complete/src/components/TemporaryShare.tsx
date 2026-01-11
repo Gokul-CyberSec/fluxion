@@ -80,7 +80,7 @@ export function TemporaryShare({ onBack }: TemporaryShareProps) {
         host: import.meta.env.VITE_WEBRTC_HOST,
         secure: true,
         port: 443,
-        path: '/'
+        path: '/webrtc/peerjs'
       });
       peerRef.current = peer;
 
